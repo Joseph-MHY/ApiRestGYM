@@ -54,8 +54,8 @@ public class UsuariosController {
         }
     }
 
-    @PutMapping("/{correo}")
-    public ResponseEntity<Object> putUser(@PathVariable("correo") String correo, @RequestBody Usuarios userUpdate){
+    @PutMapping
+    public ResponseEntity<Object> putUser(@RequestParam("correo") String correo, @RequestBody Usuarios userUpdate){
         try {
             Usuarios usuarioActualizado = usuarioService.putUsuario(correo, userUpdate);
             return ResponseEntity.accepted().body(Constantes.returnMessageAndObject(Constantes.UPDATE_USER, usuarioActualizado));
@@ -65,8 +65,8 @@ public class UsuariosController {
         }
     }
 
-    @DeleteMapping("/{correo}")
-    public ResponseEntity<Object> deleteUser(@PathVariable("correo") String correo){
+    @DeleteMapping
+    public ResponseEntity<Object> deleteUser(@RequestParam("correo") String correo){
         try{
             Usuarios usuerioEliminado = usuarioService.deleteUsuario(correo);
             return ResponseEntity.accepted().body(Constantes.returnMessage(Constantes.DELETE_USER));

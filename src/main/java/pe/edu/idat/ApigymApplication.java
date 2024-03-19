@@ -16,15 +16,4 @@ public class ApigymApplication {
 		SpringApplication.run(ApigymApplication.class, args);
 	}
 
-	@Autowired
-	private UsuarioRepository usuarioRepository;
-
-	@Bean
-	CommandLineRunner init(){
-		return args -> {
-			usuarioRepository.findAll().forEach(usuario -> {
-				log.info(usuario.toString());
-			});
-		};
-	}
 }

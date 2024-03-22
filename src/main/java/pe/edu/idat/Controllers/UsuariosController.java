@@ -17,11 +17,14 @@ import java.util.Optional;
 @RequestMapping("/api/usuarios")
 public class UsuariosController {
 
-    private final UsuarioService usuarioService;
+    private UsuarioService usuarioService;
 
     @Autowired
     public UsuariosController(UsuarioService usuarioService) {
         this.usuarioService = usuarioService;
+    }
+
+    public UsuariosController() {
     }
 
     @GetMapping
@@ -45,32 +48,52 @@ public class UsuariosController {
     }
 
     @PostMapping
-    public ResponseEntity<Usuarios> postUser(@RequestBody Usuarios usuario) {
+    public ResponseEntity<Object> postUser(@RequestBody Usuarios usuario) {
         try {
+            if(usuario == null){
+                return ResponseEntity.badRequest().body("El usuario no puede ser nulo");
+            }
             Usuarios nuevoUsuario = usuarioService.postUsuario(usuario);
-            return new ResponseEntity<>(nuevoUsuario, HttpStatus.CREATED);
+            if(nuevoUsuario != null){
+                return ResponseEntity.accepted().body(Constantes.returnMessageAndObject(Constantes.CREATED_USER, nuevoUsuario));
+            } else {
+                return ResponseEntity.badRequest().body("Error al crear usuario");
+            }
         } catch (IllegalArgumentException e) {
+            e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
     @PutMapping
-    public ResponseEntity<Object> putUser(@RequestParam("correo") String correo, @RequestBody Usuarios userUpdate){
+    public ResponseEntity<Object> putUser(@RequestParam("correo") String correo, @RequestBody Usuarios userUpdate) {
         try {
+            if (correo == null || userUpdate == null) {
+                return ResponseEntity.badRequest().body("El correo y el cuerpo de la solicitud no pueden ser nulos.");
+            }
+
             Usuarios usuarioActualizado = usuarioService.putUsuario(correo, userUpdate);
-            return ResponseEntity.accepted().body(Constantes.returnMessageAndObject(Constantes.UPDATE_USER, usuarioActualizado));
-        } catch (Exception ex){
+            if (usuarioActualizado != null) {
+                return ResponseEntity.accepted().body(Constantes.returnMessageAndObject(Constantes.UPDATE_USER, usuarioActualizado));
+            } else {
+                return ResponseEntity.badRequest().body(Constantes.returnMessage("No se pudo encontrar el usuario para actualizar."));
+            }
+        } catch (Exception ex) {
             ex.printStackTrace();
             return ResponseEntity.badRequest().body("Error al actualizar el usuario: " + ex.getMessage());
         }
     }
 
     @DeleteMapping
-    public ResponseEntity<Object> deleteUser(@RequestParam("correo") String correo){
-        try{
-            Usuarios usuerioEliminado = usuarioService.deleteUsuario(correo);
-            return ResponseEntity.accepted().body(Constantes.returnMessage(Constantes.DELETE_USER));
-        } catch (Exception ex){
+    public ResponseEntity<Object> deleteUser(@RequestParam("correo") String correo) {
+        try {
+            Usuarios user = usuarioService.deleteUsuario(correo);
+            if (user != null) {
+                return ResponseEntity.accepted().body(Constantes.returnMessage(Constantes.DELETE_USER));
+            } else {
+                return ResponseEntity.badRequest().body(Constantes.returnMessage("Error al Eliminar el Usuario"));
+            }
+        } catch (Exception ex) {
             ex.printStackTrace();
             return ResponseEntity.badRequest().body("Error al eliminar el usuario: " + ex.getMessage());
         }

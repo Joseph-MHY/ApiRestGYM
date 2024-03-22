@@ -52,6 +52,11 @@ public class Usuarios {
     @Column(name = "tipo_usuario")
     private TipoUsuario tipoUsuario;
 
+    public Usuarios(String correo, String nombreUsuario) {
+        this.correo = correo;
+        this.nombreUsuario = nombreUsuario;
+    }
+
     public Usuarios(String correo,
                     String nombreUsuario,
                     String apellidoUsuario,

@@ -17,11 +17,14 @@ import java.util.Optional;
 @RequestMapping("/api/usuarios")
 public class UsuariosController {
 
-    private final UsuarioService usuarioService;
+    private UsuarioService usuarioService;
 
     @Autowired
     public UsuariosController(UsuarioService usuarioService) {
         this.usuarioService = usuarioService;
+    }
+
+    public UsuariosController() {
     }
 
     @GetMapping

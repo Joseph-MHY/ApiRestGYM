@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 import pe.edu.idat.Models.CategoriasProducto;
 
 @Repository
-public interface CategoriasProdRepository extends CrudRepository<CategoriasProducto, Long> {
+public interface ICategoriasProdRepository extends CrudRepository<CategoriasProducto, Long> {
 }

@@ -52,21 +52,24 @@ public class UsuarioService {
         }
     }
 
-    public Usuarios putUsuario(String correo, Usuarios usuarioActualizado) {
+    public Usuarios putUsuario(String correo, Usuarios usuarioModificado) {
         Optional<Usuarios> usuarioOptional = IUsuarioRepository.findById(correo);
         return usuarioOptional.map(usuario -> {
-            usuario.setNombreUsuario(usuarioActualizado.getNombreUsuario());
-            usuario.setApellidoUsuario(usuarioActualizado.getApellidoUsuario());
-            usuario.setPassword(usuarioActualizado.getPassword());
-            usuario.setDni(usuarioActualizado.getDni());
-            usuario.setNumCelular(usuarioActualizado.getNumCelular());
-            usuario.setAltura(usuarioActualizado.getAltura());
-            usuario.setPeso(usuarioActualizado.getPeso());
-            usuario.setFechaRegistro(usuarioActualizado.getFechaRegistro());
-            usuario.setFechaNacimiento(usuarioActualizado.getFechaNacimiento());
-            usuario.setTipoUsuario(TipoUsuario.Usuario);
-            log.info("Datos de Usuario actualizado: {}", usuario);
-            return IUsuarioRepository.save(usuario);
+            Usuarios usuarioActualizado = new Usuarios(
+                    usuarioModificado.getCorreo(),
+                    usuarioModificado.getNombreUsuario(),
+                    usuarioModificado.getApellidoUsuario(),
+                    usuarioModificado.getPassword(),
+                    usuarioModificado.getPalabraClave(),
+                    usuarioModificado.getDni(),
+                    usuarioModificado.getNumCelular(),
+                    usuarioModificado.getAltura(),
+                    usuarioModificado.getPeso(),
+                    usuarioModificado.getFechaRegistro(),
+                    usuarioModificado.getFechaNacimiento(),
+                    TipoUsuario.Usuario
+            );
+            return IUsuarioRepository.save(usuarioActualizado);
         }).orElse(null);
     }
 

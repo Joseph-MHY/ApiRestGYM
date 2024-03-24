@@ -30,6 +30,9 @@ public class Usuarios {
     @Column(name = "password")
     private String password;
 
+    @Column(name = "palabra_clave")
+    private String palabraClave;
+
     @Column(name = "dni")
     private String dni;
 
@@ -61,6 +64,7 @@ public class Usuarios {
                     String nombreUsuario,
                     String apellidoUsuario,
                     String password,
+                    String palabraClave,
                     String dni,
                     String numCelular,
                     String fechaRegistro,
@@ -71,6 +75,7 @@ public class Usuarios {
         this.nombreUsuario = nombreUsuario;
         this.apellidoUsuario = apellidoUsuario;
         this.password = password;
+        this.palabraClave = palabraClave;
         this.dni = dni;
         this.numCelular = numCelular;
         this.fechaRegistro = fechaRegistro;
@@ -82,6 +87,7 @@ public class Usuarios {
                     String nombreUsuario,
                     String apellidoUsuario,
                     String password,
+                    String palabraClave,
                     String dni,
                     String numCelular,
                     Double altura,
@@ -94,6 +100,7 @@ public class Usuarios {
         this.nombreUsuario = nombreUsuario;
         this.apellidoUsuario = apellidoUsuario;
         this.password = password;
+        this.palabraClave = palabraClave;
         this.dni = dni;
         this.numCelular = numCelular;
         this.altura = altura;
@@ -102,4 +109,6 @@ public class Usuarios {
         this.fechaNacimiento = fechaNacimiento;
         this.tipoUsuario = tipoUsuario;
     }
+
+
 }

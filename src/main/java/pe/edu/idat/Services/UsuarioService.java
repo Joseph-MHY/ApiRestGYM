@@ -6,6 +6,10 @@ import org.springframework.stereotype.Service;
 import pe.edu.idat.Models.Usuarios;
 import pe.edu.idat.Repositories.IUsuarioRepository;
 import pe.edu.idat.Utils.TipoUsuario;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+
 
 import java.util.Optional;
 
@@ -78,4 +82,18 @@ public class UsuarioService {
             return null;
         }
     }
+
+    public boolean loginUsuario(String correo, String password) {
+        Optional<Usuarios> usuarioOptional = IUsuarioRepository.findById(correo);
+        if (usuarioOptional.isPresent()) {
+            Usuarios usuario = usuarioOptional.get();
+            // Verificar si la contraseña coincide
+            return usuario.getPassword().equals(password);
+        }
+        return false; // Si el usuario no existe
+    }
+
+
+
+
 }

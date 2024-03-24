@@ -10,10 +10,13 @@ import pe.edu.idat.Models.Usuarios;
 import pe.edu.idat.Services.UsuarioService;
 import pe.edu.idat.Utils.Constantes;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/api/usuarios")
 public class UsuariosController {
 
@@ -98,4 +101,27 @@ public class UsuariosController {
             return ResponseEntity.badRequest().body("Error al eliminar el usuario: " + ex.getMessage());
         }
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<Object> loginUser(@RequestBody Map<String, String> requestBody) {
+        try {
+            String correo = requestBody.get("correo");
+            String password = requestBody.get("password");
+
+            if (correo == null || password == null) {
+                return ResponseEntity.badRequest().body(Collections.singletonMap("mensaje", "El correo y la contraseña no pueden ser nulos."));
+            }
+
+            boolean loginExitoso = usuarioService.loginUsuario(correo, password);
+            if (loginExitoso) {
+                return ResponseEntity.ok().body(Collections.singletonMap("mensaje", "Credenciales correctas"));
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Collections.singletonMap("mensaje", "Credenciales inválidas"));
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return ResponseEntity.badRequest().body(Collections.singletonMap("mensaje", "Error al procesar la solicitud de inicio de sesión: " + ex.getMessage()));
+        }
+    }
+
 }

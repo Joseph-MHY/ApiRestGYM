@@ -50,7 +50,7 @@ public class UsuariosController {
         }
     }
 
-    @PostMapping
+    @PostMapping("/signup")
     public ResponseEntity<Object> postUser(@RequestBody Usuarios usuario) {
         try {
             if(usuario == null){

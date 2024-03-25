@@ -115,27 +115,15 @@ public class UsuarioService {
         }).orElse(null);
     }
 
-    public ResponseEntity<Object> actualizarPassword(String correo, String nuevaPassword, String palabraClave) {
-        // Obtener el usuario por su correo electrónico
+    public Usuarios actualizarpass(String correo, String password) {
         Optional<Usuarios> usuarioOptional = IUsuarioRepository.findById(correo);
-        if (usuarioOptional.isPresent()) {
-            Usuarios usuario = usuarioOptional.get();
-
-            // Validar la palabra clave antes de actualizar la contraseña
-            if (!usuario.getPalabraClave().equals(palabraClave)) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"mensaje\": \"La palabra clave proporcionada no coincide con la del usuario.\"}");
-            }
-
-            // Actualizar la contraseña
-            usuario.setPassword(nuevaPassword);
-            IUsuarioRepository.save(usuario);
-            return ResponseEntity.accepted().body("{\"mensaje\": \"Contraseña actualizada correctamente.\"}");
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"mensaje\": \"No se encontró ningún usuario con el correo electrónico proporcionado.\"}");
-        }
+        return usuarioOptional.map(usuario -> {
+            // Actualizar la contraseña del usuario
+            usuario.setPassword(password);
+            // Guardar los cambios en la base de datos
+            return IUsuarioRepository.save(usuario);
+        }).orElse(null);
     }
-
-
 
 
 }

@@ -155,41 +155,48 @@ public class UsuariosController {
         }
     }
 
-    @PutMapping("/actualizarPassword")
-    public ResponseEntity<Object> actualizarPassword(@RequestBody Map<String, String> requestBody) {
+    @PutMapping("/actualizarpassword")
+    public ResponseEntity<Object> actualizarContra(@RequestBody Map<String, String> requestBody) {
         String correo = requestBody.get("correo");
-        String nuevaPassword = requestBody.get("password");
+        String password = requestBody.get("password");
         String palabraClave = requestBody.get("palabraClave");
 
-        if (correo == null || nuevaPassword == null || palabraClave == null) {
-            // Construir el mensaje de error si faltan datos
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("mensaje", "Se requieren correo, nueva contraseña y palabra clave.");
-            return ResponseEntity.badRequest().body(errorResponse);
+        if (correo == null || password == null || palabraClave == null) {
+            return ResponseEntity.badRequest().body("El correo, la contraseña y la palabra clave no pueden ser nulos.");
         }
 
-        ResponseEntity<Object> response = usuarioService.actualizarPassword(correo, nuevaPassword, palabraClave);
+        // Llamar al servicio para obtener el usuario por correo
+        Optional<Usuarios> usuarioOptional = usuarioService.getUsuarioByEmail(correo);
+        if (usuarioOptional.isPresent()) {
+            Usuarios usuario = usuarioOptional.get();
 
-        if (response.getStatusCode() == HttpStatus.ACCEPTED) {
-            // Contraseña actualizada correctamente
-            Map<String, String> responseBody = new HashMap<>();
-            responseBody.put("mensaje", "Contraseña actualizada correctamente.");
-            return ResponseEntity.accepted().body(responseBody);
-        } else if (response.getStatusCode() == HttpStatus.UNAUTHORIZED) {
-            // La palabra clave proporcionada no coincide
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("mensaje", "La palabra clave proporcionada es incorrecta.");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
-        } else if (response.getStatusCode() == HttpStatus.NOT_FOUND) {
-            // No se encontró ningún usuario con el correo proporcionado
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("mensaje", "No se encontró ningún usuario con el correo electrónico proporcionado.");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+            // Verificar si la palabra clave coincide con la registrada para el usuario
+            if (palabraClave.equals(usuario.getPalabraClave())) {
+                // Actualizar la contraseña
+                usuario.setPassword(password);
+
+                // Guardar los cambios en la base de datos
+                Usuarios usuarioActualizado = usuarioService.actualizarpass(correo, password);
+
+                if (usuarioActualizado != null) {
+                    // Construir el mensaje JSON de éxito
+                    Map<String, String> response = new HashMap<>();
+                    response.put("mensaje", "Contraseña actualizada correctamente");
+                    // Devolver el mensaje JSON con el estado HTTP aceptado (202)
+                    return ResponseEntity.accepted().body(response);
+                } else {
+                    // Construir el mensaje JSON de error
+                    Map<String, String> errorResponse = Collections.singletonMap("mensaje", "No se pudo actualizar la contraseña");
+                    // Devolver el mensaje de error en formato JSON con el estado HTTP interno del servidor (500)
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+                }
+            } else {
+                // La palabra clave no coincide con la registrada para el usuario
+                return ResponseEntity.badRequest().body(Collections.singletonMap("mensaje", "La palabra clave no coincide con la registrada para el usuario."));
+            }
         } else {
-            // Otro error inesperado
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("mensaje", "Error al actualizar la contraseña.");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+            // No se encontró ningún usuario con el correo dado
+            return ResponseEntity.badRequest().body(Collections.singletonMap("mensaje", "Correo no registrado"));
         }
     }
 

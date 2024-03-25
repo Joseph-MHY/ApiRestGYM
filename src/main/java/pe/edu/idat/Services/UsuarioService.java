@@ -96,7 +96,43 @@ public class UsuarioService {
         return false; // Si el usuario no existe
     }
 
+    public Optional<Usuarios> getUsuarioByEmail(String correo) {
+        return IUsuarioRepository.findByCorreo(correo);
+    }
+    public Usuarios actualizarPerfil(String correo, Usuarios usuarioModificado) {
+        Optional<Usuarios> usuarioOptional = IUsuarioRepository.findById(correo);
+        return usuarioOptional.map(usuario -> {
+            // Actualizar los campos del usuario
+            usuario.setNombreUsuario(usuarioModificado.getNombreUsuario());
+            usuario.setApellidoUsuario(usuarioModificado.getApellidoUsuario());
+            usuario.setDni(usuarioModificado.getDni());
+            usuario.setNumCelular(usuarioModificado.getNumCelular());
+            usuario.setAltura(usuarioModificado.getAltura());
+            usuario.setPeso(usuarioModificado.getPeso());
+            usuario.setFechaNacimiento(usuarioModificado.getFechaNacimiento());
+            // Guardar los cambios en la base de datos
+            return IUsuarioRepository.save(usuario);
+        }).orElse(null);
+    }
 
+    public ResponseEntity<Object> actualizarPassword(String correo, String nuevaPassword, String palabraClave) {
+        // Obtener el usuario por su correo electrónico
+        Optional<Usuarios> usuarioOptional = IUsuarioRepository.findById(correo);
+        if (usuarioOptional.isPresent()) {
+            Usuarios usuario = usuarioOptional.get();
 
+            // Validar la palabra clave antes de actualizar la contraseña
+            if (!usuario.getPalabraClave().equals(palabraClave)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"mensaje\": \"La palabra clave proporcionada no coincide con la del usuario.\"}");
+            }
+
+            // Actualizar la contraseña
+            usuario.setPassword(nuevaPassword);
+            IUsuarioRepository.save(usuario);
+            return ResponseEntity.accepted().body("{\"mensaje\": \"Contraseña actualizada correctamente.\"}");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"mensaje\": \"No se encontró ningún usuario con el correo electrónico proporcionado.\"}");
+        }
+    }
 
 }

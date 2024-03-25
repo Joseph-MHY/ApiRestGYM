@@ -10,10 +10,7 @@ import pe.edu.idat.Models.Usuarios;
 import pe.edu.idat.Services.UsuarioService;
 import pe.edu.idat.Utils.Constantes;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @CrossOrigin
@@ -124,4 +121,75 @@ public class UsuariosController {
         }
     }
 
+    @GetMapping("/email/{correo}")
+    public ResponseEntity<Object> getUserByEmail(@PathVariable("correo") String correo) {
+        try {
+            Optional<Usuarios> usuarioOptional = usuarioService.getUsuarioByEmail(correo);
+            if (usuarioOptional.isPresent()) {
+                Usuarios usuario = usuarioOptional.get();
+                return ResponseEntity.ok().body(usuario);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return ResponseEntity.badRequest().body("Error al obtener el usuario por correo: " + ex.getMessage());
+        }
+    }
+
+    @PutMapping("/{correo}")
+    public ResponseEntity<Object> actualizarPerfil(@PathVariable String correo, @RequestBody Usuarios usuarioModificado) {
+        Usuarios usuarioActualizado = usuarioService.actualizarPerfil(correo, usuarioModificado);
+        if (usuarioActualizado != null) {
+            // Construye el mensaje JSON de éxito
+            Map<String, String> response = new HashMap<>();
+            response.put("mensajePerfil", "Perfil actualizado correctamente para el correo: " + correo);
+            // Devuelve el mensaje JSON con el estado HTTP aceptado (202)
+            return ResponseEntity.accepted().body(response);
+        } else {
+            // Construye el mensaje JSON de error
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("mensajePerfil", "No se pudo actualizar el perfil para el correo: " + correo);
+            // Devuelve el mensaje de error en formato JSON con el estado HTTP no encontrado (404)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+        }
+    }
+
+    @PutMapping("/actualizarPassword")
+    public ResponseEntity<Object> actualizarPassword(@RequestBody Map<String, String> requestBody) {
+        String correo = requestBody.get("correo");
+        String nuevaPassword = requestBody.get("password");
+        String palabraClave = requestBody.get("palabraClave");
+
+        if (correo == null || nuevaPassword == null || palabraClave == null) {
+            // Construir el mensaje de error si faltan datos
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("mensaje", "Se requieren correo, nueva contraseña y palabra clave.");
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+
+        ResponseEntity<Object> response = usuarioService.actualizarPassword(correo, nuevaPassword, palabraClave);
+
+        if (response.getStatusCode() == HttpStatus.ACCEPTED) {
+            // Contraseña actualizada correctamente
+            Map<String, String> responseBody = new HashMap<>();
+            responseBody.put("mensaje", "Contraseña actualizada correctamente.");
+            return ResponseEntity.accepted().body(responseBody);
+        } else if (response.getStatusCode() == HttpStatus.UNAUTHORIZED) {
+            // La palabra clave proporcionada no coincide
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("mensaje", "La palabra clave proporcionada es incorrecta.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+        } else if (response.getStatusCode() == HttpStatus.NOT_FOUND) {
+            // No se encontró ningún usuario con el correo proporcionado
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("mensaje", "No se encontró ningún usuario con el correo electrónico proporcionado.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+        } else {
+            // Otro error inesperado
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("mensaje", "Error al actualizar la contraseña.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
 }

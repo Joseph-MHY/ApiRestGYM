@@ -98,8 +98,8 @@ public class UsuarioService {
 
     public Optional<Usuarios> getUsuarioByEmail(String correo) {
         return IUsuarioRepository.findByCorreo(correo);
-    }
-    public Usuarios actualizarPerfil(String correo, Usuarios usuarioModificado) {
+    }    public Usuarios actualizarPerfil(String correo, Usuarios usuarioModificado) {
+
         Optional<Usuarios> usuarioOptional = IUsuarioRepository.findById(correo);
         return usuarioOptional.map(usuario -> {
             // Actualizar los campos del usuario
@@ -110,6 +110,7 @@ public class UsuarioService {
             usuario.setAltura(usuarioModificado.getAltura());
             usuario.setPeso(usuarioModificado.getPeso());
             usuario.setFechaNacimiento(usuarioModificado.getFechaNacimiento());
+            usuario.setPalabraClave(usuarioModificado.getPalabraClave());
             // Guardar los cambios en la base de datos
             return IUsuarioRepository.save(usuario);
         }).orElse(null);
